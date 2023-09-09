@@ -1,4 +1,6 @@
 import cv2
+from utils import get_images
+import os
 
 
 def draw(im_path, label_path):
@@ -16,8 +18,10 @@ def draw(im_path, label_path):
 
 
 if __name__ == '__main__':
-    for i in range(48):
+    for file in get_images(os.path.join(os.getcwd(), 'tmp/images/augmented/transforms')):
         try:
-            draw(f'tmp/images/renamed/{i}.jpg', f'tmp/labels/renamed/{i}.txt')
+            name = file.split('/')[-1]
+            name = name[:name.rfind('.')]
+            draw(file, os.path.join(os.getcwd(), 'tmp/labels/augmented/transforms', name + '.txt'))
         except Exception as e:
             pass
