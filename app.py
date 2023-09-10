@@ -4,6 +4,7 @@ import numpy as np
 import json
 import os
 from recognition.Processor import Processor
+import base64
 
 host = os.environ.get('HOST', '0.0.0.0')
 port = int(os.environ.get('PORT', 5001))
@@ -16,8 +17,11 @@ app = Flask(__name__)
 
 @app.route('/tiles', methods=['POST'])
 def process_tiles():
-    r = request
-    nparr = np.frombuffer(r.data, np.uint8)
+    data = request.get_json()
+    img_base64 = data['image']
+
+    # Convert base64 image to numpy array
+    nparr = np.fromstring(base64.b64decode(img_base64), np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
     result = {"tiles": processor.find_tiles(img)}
