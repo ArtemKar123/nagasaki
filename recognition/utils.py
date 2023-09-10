@@ -10,6 +10,12 @@ import json
 from typing import List
 import cv2
 
+
+def get_class(result, names):
+    idx = result.probs.numpy().data.argmax()
+    return names[int(idx)]
+
+
 def filter_files(files: List[str]):
     formats = ['png', 'jpg', 'jpeg']
     return filter(lambda x: x.split('.')[-1] in formats, files)
