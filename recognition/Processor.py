@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-from recognition.utils import crop_minAreaRect, get_class
+from recognition.utils import crop_minAreaRect, get_class, remove_background
 import os
 import cv2
 
@@ -10,6 +10,8 @@ class Processor:
         self.recognition_model = YOLO(classify_path)
 
     def find_tiles(self, image):
+        image = remove_background(image)
+
         detected = self.detection_model([image], conf=0.6)[0]
 
         masks = detected.masks.xy

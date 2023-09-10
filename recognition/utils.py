@@ -11,6 +11,11 @@ from typing import List
 import cv2
 
 
+def remove_background(image: np.ndarray, lower_bgr=np.array([35, 53, 0]), upper_bgr=np.array([255, 221, 63])):
+    mask = cv2.bitwise_not(cv2.inRange(image, lower_bgr, upper_bgr))
+    return cv2.bitwise_and(image, image.copy(), mask=mask)
+
+
 def get_class(result, names):
     idx = result.probs.numpy().data.argmax()
     return names[int(idx)]

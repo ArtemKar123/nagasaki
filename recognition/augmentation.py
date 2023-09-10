@@ -8,11 +8,6 @@ import shutil
 from utils import get_images
 
 
-def extract_background(image: np.ndarray, lower_bgr=np.array([35, 53, 0]), upper_bgr=np.array([255, 221, 63])):
-    mask = cv2.bitwise_not(cv2.inRange(image, lower_bgr, upper_bgr))
-    return cv2.bitwise_and(image, image.copy(), mask=mask)
-
-
 def extract_background_with_labels(images_in_dir: str, labels_in_dir: str, images_out_dir: str, labels_out_dir: str):
     for file in get_images(images_in_dir):
         name = file.split('/')[-1]
