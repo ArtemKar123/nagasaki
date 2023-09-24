@@ -9,6 +9,23 @@ import os
 import json
 from typing import List
 import cv2
+from sklearn.cluster import AgglomerativeClustering
+
+
+def masks2clusters(masks, n_clusters=3):
+    centers = [np.mean(mask, axis=0) for mask in masks]
+    masks_pts = []
+
+    for center in centers:
+        masks_pts.append(center)
+
+    for mask in masks:
+        for point in mask:
+            masks_pts.append(point)
+
+    dbscan = AgglomerativeClustering(linkage='single', n_clusters=n_clusters)
+    clusters = dbscan.fit_predict(masks_pts)
+    return clusters[:len(masks)]
 
 
 def remove_background(image: np.ndarray, lower_bgr=np.array([35, 53, 0]), upper_bgr=np.array([255, 221, 63])):
@@ -163,7 +180,7 @@ def train_val_test_split(images_in_dir, labels_in_dir, out_dir, train_p=0.6, val
         shutil.copy(label, label_dst)
 
 
-def classification_train_val_test_split(images_in_dir, out_dir, train_p=0.6, val_p=0.2, test_p=0.2):
+def classification_train_val_test_split(images_in_dir, out_dir, train_p=0.6, val_p=0.2, test_p=0.2, wipe=True):
     for dir in os.listdir(images_in_dir):
         if not os.path.isdir(os.path.join(images_in_dir, dir)):
             continue
@@ -207,13 +224,61 @@ def crop_minAreaRect(img, rect):
     # Draw the rotated rectangle
     img_crop = cv2.getRectSubPix(img_rot, size, center)
 
-    return img_crop
+    return img_crop, angle
+
+
+def extract_tiles_from_sets(sets_in_dir, sets_out_dir):
+    from recognition.Processor import Processor
+    processor = Processor(os.path.join(os.getcwd(), 'weights/detect2.pt'),
+                          os.path.join(os.getcwd(), 'weights/classify3.pt'))
+    for dir in os.listdir(sets_in_dir):
+        dir_path = os.path.join(sets_in_dir, dir)
+        if not os.path.isdir(dir_path):
+            continue
+
+        target_directory = os.path.join(sets_out_dir, dir)
+
+        if not os.path.exists(target_directory):
+            os.makedirs(target_directory)
+
+        c = 0
+
+        for im_path in os.listdir(dir_path):
+            image = cv2.imread(os.path.join(dir_path, im_path))
+            _, tiles = processor.detect_tiles(image)
+            for tile in tiles:
+                cv2.imwrite(os.path.join(target_directory, f"{c}.jpg"), cv2.cvtColor(tile, cv2.COLOR_RGB2BGR))
+                c += 1
 
 
 if __name__ == '__main__':
     random.seed(413)
 
-    classification_train_val_test_split(
-        os.path.join(os.getcwd(), 'data/images/augmented-classification-split'),
-        os.path.join(os.getcwd(), 'datasets/classification'),
-    )
+    # classification_train_val_test_split(
+    #     os.path.join(os.getcwd(), 'data/images/augmented-classification-split3'),
+    #     os.path.join(os.getcwd(), 'datasets/classification2'),
+    #     train_p=0.8,
+    #     val_p=0.2
+    # )
+
+    # label_studio_classification_to_directories('more_tiles.json',
+    #                                            os.path.join(os.getcwd(), 'data/images/combined_extracted'),
+    #                                            os.path.join(os.getcwd(), 'data/images/classification-split2')
+    #                                            )
+
+    # extract_tiles_from_sets(os.path.join(os.getcwd(), 'data/images/sets'),
+    #                         os.path.join(os.getcwd(), 'data/images/extracted_sets'))
+
+    train_val_test_split(os.path.join(os.getcwd(), 'data/images/augmented3'),
+                         os.path.join(os.getcwd(), 'data/labels/augmented3'),
+                         os.path.join(os.getcwd(), 'datasets/augmented4'),
+                         train_p=0.8,
+                         val_p=0.2
+                         )
+
+    # classification_train_val_test_split(
+    #     os.path.join(os.getcwd(), 'data/images/augmented-classification-split2'),
+    #     os.path.join(os.getcwd(), 'datasets/classification'),
+    #     train_p=0.8,
+    #     val_p=0.2
+    # )
