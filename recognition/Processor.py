@@ -1,3 +1,5 @@
+import copy
+
 from ultralytics import YOLO
 from recognition.utils import crop_minAreaRect, get_class, remove_background, masks2clusters
 import os
