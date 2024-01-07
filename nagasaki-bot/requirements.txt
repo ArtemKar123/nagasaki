@@ -1,0 +1,4 @@
+mahjong==1.2.1
+numpy==1.24.4
+python-telegram-bot==20.5
+Requests==2.31.0
