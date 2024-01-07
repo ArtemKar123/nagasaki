@@ -18,3 +18,7 @@ results.
 For now it can recognize tiles in your hand (aka-doras included), as well as the winning tile and return list of yaku.  
 Yaku and shanten are counted using [mahjong library](https://github.com/MahjongRepository/mahjong).  
 ![Example GIF](media/tg.gif)
+
+# Get the weights
+Add weights to `/recognition/weights/` directory.
+[Link](https://drive.google.com/drive/folders/1vb3HeszLUGzeIXX1bpZ3t2BrMe-bOLh-?usp=sharing)
